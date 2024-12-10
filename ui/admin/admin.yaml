@@ -1,0 +1,202 @@
+about:
+  date: December 10, 2024 21:49:48
+  recent_changes: works with modified safrs-react-admin
+  version: 0.0.0
+api_root: '{http_type}://{swagger_host}:{port}/{api}'
+authentication: '{system-default}'
+info:
+  number_relationships: 6
+  number_tables: 6
+info_toggle_checked: true
+resources:
+  Access:
+    attributes:
+    - label: ' id*'
+      name: id
+      search: true
+      sort: true
+    - name: door_id
+      required: true
+    - name: user_id
+      required: true
+    - name: is_permanent
+      type: Boolean
+    description: Represents permanent access assigned to special users or owners.
+    info_list: Represents permanent access assigned to special users or owners.
+    tab_groups:
+    - direction: toone
+      fks:
+      - door_id
+      name: door
+      resource: Door
+    - direction: toone
+      fks:
+      - user_id
+      name: user
+      resource: User
+    type: Access
+    user_key: id
+  Door:
+    attributes:
+    - label: ' description*'
+      name: description
+      required: true
+      search: true
+      sort: true
+    - name: id
+    description: Represents a physical door in a building or house.
+    info_list: Represents a physical door in a building or house.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - door_id
+      name: AccessList
+      resource: Access
+    - direction: tomany
+      fks:
+      - door_id
+      name: InvitationList
+      resource: Invitation
+    type: Door
+    user_key: description
+  Group:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: user_count
+    - name: id
+    description: Represents a group of users tied to specific permissions.
+    info_list: Represents a group of users tied to specific permissions.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - group_id
+      name: UserList
+      resource: User
+    type: Group
+    user_key: name
+  Invitation:
+    attributes:
+    - label: ' id*'
+      name: id
+      search: true
+      sort: true
+    - name: door_id
+      required: true
+    - name: user_id
+      required: true
+    - name: start_date
+      required: true
+      type: DATE
+    - name: end_date
+      required: true
+      type: DATE
+    - name: is_recurring
+      type: Boolean
+    description: Represents temporary invitations including schedule-based invitations.
+    info_list: Represents temporary invitations including schedule-based invitations.
+    tab_groups:
+    - direction: toone
+      fks:
+      - door_id
+      name: door
+      resource: Door
+    - direction: toone
+      fks:
+      - user_id
+      name: user
+      resource: User
+    type: Invitation
+    user_key: id
+  Profile:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: user_count
+    - name: id
+    description: Represents different profiles defining user permissions.
+    info_list: Represents different profiles defining user permissions.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - profile_id
+      name: UserList
+      resource: User
+    type: Profile
+    user_key: name
+  User:
+    attributes:
+    - label: ' name*'
+      name: name
+      required: true
+      search: true
+      sort: true
+    - name: group_id
+    - name: profile_id
+    - name: is_special_user
+      type: Boolean
+    - name: access_count
+    - name: invitation_count
+    - name: id
+    description: Represents a user who can have multiple accesses, groups, and profiles.
+    info_list: Represents a user who can have multiple accesses, groups, and profiles.
+    tab_groups:
+    - direction: tomany
+      fks:
+      - user_id
+      name: AccessList
+      resource: Access
+    - direction: tomany
+      fks:
+      - user_id
+      name: InvitationList
+      resource: Invitation
+    - direction: toone
+      fks:
+      - group_id
+      name: group
+      resource: Group
+    - direction: toone
+      fks:
+      - profile_id
+      name: profile
+      resource: Profile
+    type: User
+    user_key: name
+settings:
+  HomeJS: /admin-app/home.js
+  max_list_columns: 8
+  style_guide:
+    applicationLocales:
+    - en
+    - es
+    currency_symbol: $
+    currency_symbol_position: left
+    date_format: LL
+    decimal_max: '1000000000'
+    decimal_min: '0'
+    decimal_separator: .
+    detail_mode: tab
+    edit_on_mode: dblclick
+    exclude_listpicker: false
+    include_translation: 'false'
+    keycloak_client_id: alsclient
+    keycloak_realm: kcals
+    keycloak_url: http://localhost:8080
+    locale: en
+    max_decimal_digits: '4'
+    min_decimal_digits: '2'
+    new_mode: dialog
+    pick_style: list
+    row_height: small,
+    serviceType: OntimizeEE
+    startSessionPath: /auth/login
+    style: light
+    thousand_separator: ','
+    use_keycloak: 'false'

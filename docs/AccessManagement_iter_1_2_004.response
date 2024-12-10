@@ -1,0 +1,146 @@
+{
+    "models": [
+        {
+            "classname": "User",
+            "code": "class User(Base):\n    \"\"\"description: Represents a user who can have multiple accesses, groups, and profiles.\"\"\"\n    __tablename__ = 'user'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String(50), nullable=False)\n    is_special_user = Column(Boolean, default=False)\n    group_id = Column(Integer, ForeignKey('group.id'), nullable=True)\n    profile_id = Column(Integer, ForeignKey('profile.id'), nullable=True)",
+            "sqlite_create": "CREATE TABLE user (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    name VARCHAR(50) NOT NULL,\n    is_special_user BOOLEAN DEFAULT FALSE,\n    group_id INTEGER,\n    profile_id INTEGER,\n    FOREIGN KEY(profile_id) REFERENCES profile (id),\n    FOREIGN KEY(group_id) REFERENCES group (id)\n)",
+            "description": "Represents a user who can have multiple accesses, groups, and profiles.",
+            "name": "User"
+        },
+        {
+            "classname": "Group",
+            "code": "class Group(Base):\n    \"\"\"description: Represents a group of users tied to specific permissions.\"\"\"\n    __tablename__ = 'group'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String(50), nullable=False)",
+            "sqlite_create": "CREATE TABLE group (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    name VARCHAR(50) NOT NULL\n)",
+            "description": "Represents a group of users tied to specific permissions.",
+            "name": "Group"
+        },
+        {
+            "classname": "Profile",
+            "code": "class Profile(Base):\n    \"\"\"description: Represents different profiles defining user permissions.\"\"\"\n    __tablename__ = 'profile'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    name = Column(String(50), nullable=False)",
+            "sqlite_create": "CREATE TABLE profile (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    name VARCHAR(50) NOT NULL\n)",
+            "description": "Represents different profiles defining user permissions.",
+            "name": "Profile"
+        },
+        {
+            "classname": "Access",
+            "code": "class Access(Base):\n    \"\"\"description: Represents permanent access assigned to special users or owners.\"\"\"\n    __tablename__ = 'access'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)\n    door_id = Column(Integer, ForeignKey('door.id'), nullable=False)\n    is_permanent = Column(Boolean, default=False)",
+            "sqlite_create": "CREATE TABLE access (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    door_id INTEGER NOT NULL,\n    is_permanent BOOLEAN DEFAULT FALSE,\n    FOREIGN KEY(user_id) REFERENCES user (id),\n    FOREIGN KEY(door_id) REFERENCES door (id)\n)",
+            "description": "Represents permanent access assigned to special users or owners.",
+            "name": "Access"
+        },
+        {
+            "classname": "Invitation",
+            "code": "class Invitation(Base):\n    \"\"\"description: Represents temporary invitations including schedule-based invitations.\"\"\"\n    __tablename__ = 'invitation'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    user_id = Column(Integer, ForeignKey('user.id'), nullable=False)\n    door_id = Column(Integer, ForeignKey('door.id'), nullable=False)\n    start_date = Column(Date, nullable=False)\n    end_date = Column(Date, nullable=False)\n    is_recurring = Column(Boolean, default=False)",
+            "sqlite_create": "CREATE TABLE invitation (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    user_id INTEGER NOT NULL,\n    door_id INTEGER NOT NULL,\n    start_date DATE NOT NULL,\n    end_date DATE NOT NULL,\n    is_recurring BOOLEAN DEFAULT FALSE,\n    FOREIGN KEY(user_id) REFERENCES user (id),\n    FOREIGN KEY(door_id) REFERENCES door (id)\n)",
+            "description": "Represents temporary invitations including schedule-based invitations.",
+            "name": "Invitation"
+        },
+        {
+            "classname": "Door",
+            "code": "class Door(Base):\n    \"\"\"description: Represents a physical door in a building or house.\"\"\"\n    __tablename__ = 'door'\n\n    id = Column(Integer, primary_key=True, autoincrement=True)\n    description = Column(String(100), nullable=False)",
+            "sqlite_create": "CREATE TABLE door (\n    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,\n    description VARCHAR(100) NOT NULL\n)",
+            "description": "Represents a physical door in a building or house.",
+            "name": "Door"
+        }
+    ],
+    "rules": [
+        {
+            "name": "Permanent Access Check",
+            "description": "Permanent accesses for special users or owners are automatically validated through is_permanent property.",
+            "use_case": "Access Management",
+            "entity": "Access",
+            "code": "None required, as boolean is validated by default property."
+        },
+        {
+            "name": "Temporary Invitation Enforcement",
+            "description": "Ensure access is only given within start and end date of a temporary invitation.",
+            "use_case": "Access Scheduling",
+            "entity": "Invitation",
+            "code": "Rule.constraint(validate=Invitation, as_condition=lambda row: row.start_date <= current_date() <= row.end_date, error_msg='Access only valid on specified dates.')"
+        },
+        {
+            "name": "Recurring Invitation Logic",
+            "description": "Allow recurring invitation logic for specific schedules.",
+            "use_case": "Access Scheduling",
+            "entity": "Invitation",
+            "code": "Rule.formula(derive=Invitation.is_within_schedule, as_expression=lambda row: recurring_logic_check(row))"
+        }
+    ],
+    "test_data": "Each table contains 4 rows of test data, ensuring full coverage across special users, access permissions, and temporary invitations.",
+    "test_data_rows": [
+        {
+            "test_data_row_variable": "user1",
+            "code": "user1 = User(id=1, name=\"Alice\", is_special_user=True, group_id=1, profile_id=1)"
+        },
+        {
+            "test_data_row_variable": "user2",
+            "code": "user2 = User(id=2, name=\"Bob\", is_special_user=False, group_id=2, profile_id=2)"
+        },
+        {
+            "test_data_row_variable": "user3",
+            "code": "user3 = User(id=3, name=\"Charlie\", is_special_user=True, group_id=1, profile_id=1)"
+        },
+        {
+            "test_data_row_variable": "user4",
+            "code": "user4 = User(id=4, name=\"David\", is_special_user=False, group_id=2, profile_id=2)"
+        },
+        {
+            "test_data_row_variable": "group1",
+            "code": "group1 = Group(id=1, name=\"Admin\")"
+        },
+        {
+            "test_data_row_variable": "group2",
+            "code": "group2 = Group(id=2, name=\"Users\")"
+        },
+        {
+            "test_data_row_variable": "profile1",
+            "code": "profile1 = Profile(id=1, name=\"FullAccess\")"
+        },
+        {
+            "test_data_row_variable": "profile2",
+            "code": "profile2 = Profile(id=2, name=\"LimitedAccess\")"
+        },
+        {
+            "test_data_row_variable": "access1",
+            "code": "access1 = Access(id=1, user_id=1, door_id=1, is_permanent=True)"
+        },
+        {
+            "test_data_row_variable": "access2",
+            "code": "access2 = Access(id=2, user_id=3, door_id=2, is_permanent=False)"
+        },
+        {
+            "test_data_row_variable": "access3",
+            "code": "access3 = Access(id=3, user_id=2, door_id=1, is_permanent=True)"
+        },
+        {
+            "test_data_row_variable": "access4",
+            "code": "access4 = Access(id=4, user_id=4, door_id=2, is_permanent=False)"
+        },
+        {
+            "test_data_row_variable": "invitation1",
+            "code": "invitation1 = Invitation(id=1, user_id=2, door_id=1, start_date=date(2023, 1, 1), end_date=date(2023, 1, 10), is_recurring=False)"
+        },
+        {
+            "test_data_row_variable": "invitation2",
+            "code": "invitation2 = Invitation(id=2, user_id=3, door_id=2, start_date=date(2023, 2, 1), end_date=date(2023, 2, 28), is_recurring=True)"
+        },
+        {
+            "test_data_row_variable": "invitation3",
+            "code": "invitation3 = Invitation(id=3, user_id=4, door_id=1, start_date=date(2023, 3, 15), end_date=date(2023, 3, 25), is_recurring=False)"
+        },
+        {
+            "test_data_row_variable": "invitation4",
+            "code": "invitation4 = Invitation(id=4, user_id=1, door_id=2, start_date=date(2023, 4, 1), end_date=date(2023, 4, 15), is_recurring=True)"
+        },
+        {
+            "test_data_row_variable": "door1",
+            "code": "door1 = Door(id=1, description=\"Main Entrance\")"
+        },
+        {
+            "test_data_row_variable": "door2",
+            "code": "door2 = Door(id=2, description=\"Back Door\")"
+        }
+    ],
+    "test_data_sqlite": "INSERT INTO user (id, name, is_special_user, group_id, profile_id) VALUES \n(1, 'Alice', 1, 1, 1),\n(2, 'Bob', 0, 2, 2),\n(3, 'Charlie', 1,1,1),\n(4, 'David', 0, 2, 2);\n\nINSERT INTO group (id, name) VALUES \n(1, 'Admin'),\n(2, 'Users');\n\nINSERT INTO profile (id, name) VALUES \n(1, 'FullAccess'),\n(2, 'LimitedAccess');\n\nINSERT INTO door (id, description) VALUES \n(1, 'Main Entrance'),\n(2, 'Back Door');\n\nINSERT INTO access (id, user_id, door_id, is_permanent) VALUES \n (1, 1, 1, 1),\n (2, 3, 2, 0),\n (3, 2, 1, 1),\n (4, 4, 2, 0);\n\nINSERT INTO invitation (id, user_id, door_id, start_date, end_date, is_recurring) VALUES\n(1, 2, 1, '2023-01-01', '2023-01-10', 0),\n(2, 3, 2, '2023-02-01', '2023-02-28', 1),\n(3, 4, 1, '2023-03-15', '2023-03-25', 0),\n(4, 1, 2, '2023-04-01', '2023-04-15', 1);",
+    "name": "AccessManagement"
+}

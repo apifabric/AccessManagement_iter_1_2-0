@@ -1,0 +1,67 @@
+// Copy this text, paste to https://dbdiagram.io/d
+// Or, https://databasediagram.com/app
+// Or, view in VSCode with extension: "DBML Live Preview"
+
+Project DBML {
+  Note: '''
+Access: Represents permanent access assigned to special users or owners.
+Door: Represents a physical door in a building or house.
+User: Represents a user who can have multiple accesses, groups, and profiles.
+Group: Represents a group of users tied to specific permissions.
+Invitation: Represents temporary invitations including schedule-based invitations.
+Profile: Represents different profiles defining user permissions.
+'''
+}
+
+Table Access {
+    id INTEGER [primary key]
+    user_id INTEGER 
+    door_id INTEGER 
+    is_permanent BOOLEAN 
+    }
+
+Table Door {
+    id INTEGER [primary key]
+    description VARCHAR(100) 
+    }
+
+Table User {
+    id INTEGER [primary key]
+    name VARCHAR(50) 
+    is_special_user BOOLEAN 
+    group_id INTEGER 
+    profile_id INTEGER 
+    access_count INTEGER 
+    invitation_count INTEGER 
+    }
+
+Table Group {
+    id INTEGER [primary key]
+    name VARCHAR(50) 
+    user_count INTEGER 
+    }
+
+Table Invitation {
+    id INTEGER [primary key]
+    user_id INTEGER 
+    door_id INTEGER 
+    start_date DATE 
+    end_date DATE 
+    is_recurring BOOLEAN 
+    }
+
+Table Profile {
+    id INTEGER [primary key]
+    name VARCHAR(50) 
+    user_count INTEGER 
+    }
+
+
+
+// Relationships
+    Ref: Access.(door_id) < Door.(id)
+    Ref: Access.(user_id) < User.(id)
+    Ref: User.(group_id) < Group.(id)
+    Ref: User.(profile_id) < Profile.(id)
+    Ref: Invitation.(door_id) < Door.(id)
+    Ref: Invitation.(user_id) < User.(id)
